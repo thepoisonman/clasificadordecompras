@@ -18,30 +18,37 @@ st.title("Clasificador de Compras AFIP")
 uploaded_file = st.file_uploader("Subí un Excel de compras AFIP", type=["xlsx"])
 
 if uploaded_file is not None:
-    df = pd.read_excel(uploaded_file)
-    st.write("Vista previa del archivo:")
-    st.dataframe(df.head())
+    df_raw = pd.read_excel(uploaded_file, header=None)
+    st.write("Vista previa sin encabezados:")
+    st.dataframe(df_raw.head(10))
 
-    columnas = df.columns.tolist()
-    cuit_col = st.selectbox("Seleccioná la columna de CUIT", columnas)
-    proveedor_col = st.selectbox("Seleccioná la columna de Proveedor", columnas)
+    encabezado_fila = st.number_input("¿Cuál fila querés usar como encabezado? (empezando desde 0)", min_value=0, max_value=len(df_raw)-1, value=0, step=1)
 
-    if st.button("Clasificar Comprobantes"):
-        df_clasificado = clasificar_comprobantes(df, cuit_col, proveedor_col, memory)
-        output_path = "outputs/comprobantes_clasificados.xlsx"
-        df_clasificado.to_excel(output_path, index=False)
-        st.success(f"Archivo clasificado guardado en: {output_path}")
-        st.write(df_clasificado)
+    if st.button("Confirmar encabezado"):
+        df = pd.read_excel(uploaded_file, header=encabezado_fila)
+        st.write("Vista previa con encabezados seleccionados:")
+        st.dataframe(df.head())
 
-        for index, row in df_clasificado.iterrows():
-            proveedor = row[proveedor_col]
-            cuit = row[cuit_col]
-            google_url = "https://www.google.com/search?q=" + urllib.parse.quote_plus(proveedor)
-            afip_url = "https://www.afip.gob.ar/genericos/guiavirtual/consultas_detalle.aspx?id=3294415"
+        columnas = df.columns.tolist()
+        cuit_col = st.selectbox("Seleccioná la columna de CUIT", columnas)
+        proveedor_col = st.selectbox("Seleccioná la columna de Proveedor", columnas)
 
-            st.markdown(f"**{proveedor}** (CUIT: {cuit})")
-            st.markdown(f"[Buscar en Google]({google_url}) | [Buscar en AFIP]({afip_url})")
-            st.write("---")
+        if st.button("Clasificar Comprobantes"):
+            df_clasificado = clasificar_comprobantes(df, cuit_col, proveedor_col, memory)
+            output_path = "outputs/comprobantes_clasificados.xlsx"
+            df_clasificado.to_excel(output_path, index=False)
+            st.success(f"Archivo clasificado guardado en: {output_path}")
+            st.write(df_clasificado)
 
-        with open("memory.json", "w") as f:
-            json.dump(memory, f, indent=4)
+            for index, row in df_clasificado.iterrows():
+                proveedor = row[proveedor_col]
+                cuit = row[cuit_col]
+                google_url = "https://www.google.com/search?q=" + urllib.parse.quote_plus(str(proveedor))
+                afip_url = "https://www.afip.gob.ar/genericos/guiavirtual/consultas_detalle.aspx?id=3294415"
+
+                st.markdown(f"**{proveedor}** (CUIT: {cuit})")
+                st.markdown(f"[Buscar en Google]({google_url}) | [Buscar en AFIP]({afip_url})")
+                st.write("---")
+
+            with open("memory.json", "w") as f:
+                json.dump(memory, f, indent=4)
