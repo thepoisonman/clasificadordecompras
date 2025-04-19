@@ -25,7 +25,11 @@ if uploaded_file is not None:
     encabezado_fila = st.number_input("¿Cuál fila querés usar como encabezado? (empezando desde 0)", min_value=0, max_value=len(df_raw)-1, value=0, step=1)
 
     if st.button("Confirmar encabezado"):
-        df = pd.read_excel(uploaded_file, header=encabezado_fila)
+        new_header = df_raw.iloc[encabezado_fila]
+        df = df_raw[(encabezado_fila+1):]
+        df.columns = new_header
+        df.reset_index(drop=True, inplace=True)
+
         st.write("Vista previa con encabezados seleccionados:")
         st.dataframe(df.head())
 
