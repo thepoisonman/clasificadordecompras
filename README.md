@@ -1,16 +1,22 @@
 
 # Clasificador AFIP App
 
-**Prepárate para deploy en Streamlit Cloud**
+Esta aplicación permite cargar listados de compras descargados desde AFIP y deducir automáticamente conceptos asociados a los proveedores.
 
-## Instrucciones
+## Cambios recientes:
+- Se eliminaron las consultas a CUIT Online.
+- Se agregaron botones para buscar información del proveedor en Google y AFIP.
+- Se organizó el proyecto en carpetas (`outputs`, `logs`).
 
-1. Modificar la API key en `app.py` o usar variables de entorno.
-2. Instalar dependencias:
-   ```
-   pip install -r requirements.txt
-   ```
-3. Ejecutar:
-   ```
-   streamlit run app.py
-   ```
+## Instalación
+```
+pip install -r requirements.txt
+```
+
+## Uso
+```
+streamlit run app.py
+```
+
+Los archivos generados se guardarán en la carpeta `outputs`.
+    
